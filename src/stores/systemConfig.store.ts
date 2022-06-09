@@ -3,10 +3,7 @@ import { defineStore } from 'pinia'
 const REQUEST_BASEURL_STORE_KEY = 'REQUEST_BASEURL_STORE'
 
 export function getServerIp() {
-  return (
-    localStorage.getItem(REQUEST_BASEURL_STORE_KEY) ||
-    'http://192.169.1.19:8002/'
-  )
+  return localStorage.getItem(REQUEST_BASEURL_STORE_KEY) || ''
 }
 
 export const useSystemConfigStore = defineStore('SystemConfig', {

@@ -1,18 +1,21 @@
 <template>
   <div class="app-contain">
+    <AppTopBar />
     <AppTabBar />
-    <aside class="app-contain__aside" :class="{ hide: !asideVisible }">
-      <div
-        class="switch"
-        :title="asideVisible ? '隐藏' : '展开'"
-        @click="asideVisible = !asideVisible"
-      ></div>
-      <b v-show="asideVisible" class="animate__jello">{{ WEB_NAME }}</b>
-      <AppAsideBar v-show="asideVisible" />
-    </aside>
-    <main class="app-contain__main">
-      <AppRouter />
-    </main>
+    <div class="app-contain__content">
+      <aside class="app-contain__aside" :class="{ hide: !asideVisible }">
+        <div
+          class="switch"
+          :title="asideVisible ? '隐藏' : '展开'"
+          @click="asideVisible = !asideVisible"
+        ></div>
+        <b v-show="asideVisible" class="animate__jello">{{ WEB_NAME }}</b>
+        <AppAsideBar v-show="asideVisible" />
+      </aside>
+      <main class="app-contain__main">
+        <AppRouter />
+      </main>
+    </div>
   </div>
 </template>
 
@@ -24,6 +27,7 @@ import '@/assets/icon/iconfont.js'
 import AppAsideBar from '@/layout/AppAsideBar.vue'
 import AppTabBar from '@/layout/AppTabBar.vue'
 import AppRouter from '@/layout/AppRouter.vue'
+import AppTopBar from '@/layout/AppTopBar.vue'
 
 import { useSystemConfigStore } from './stores/systemConfig.store'
 import { WEB_NAME } from './common/static'
@@ -47,7 +51,8 @@ export default defineComponent({
   components: {
     AppAsideBar,
     AppRouter,
-    AppTabBar
+    AppTabBar,
+    AppTopBar
   },
   setup() {
     const systemConfigStore = useSystemConfigStore()
@@ -69,7 +74,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   background: var(--bg-color);
   color: var(--font-color);
   @slideDruation: 0.625s;
@@ -130,9 +135,8 @@ export default defineComponent({
     }
   }
   &__main {
-    margin-top: @frameTop;
     box-sizing: border-box;
-    height: calc(100% - @frameTop);
+    height: 100%;
     flex: 1;
     overflow: hidden;
     position: relative;
@@ -143,6 +147,12 @@ export default defineComponent({
         opacity: 1;
       }
     }
+  }
+  &__content {
+    position: relative;
+    flex: 1;
+    display: flex;
+    overflow: hidden;
   }
 }
 </style>
