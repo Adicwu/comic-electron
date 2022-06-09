@@ -1,26 +1,56 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import RouteList from './routes/index'
+import { getServerIp } from '@/stores/systemConfig.store'
+import { ElNotification } from 'element-plus'
+import {
+  getRouteSCMInstance,
+  createRouteSCM
+} from '@/class/routeScrollCache.class'
+import { WEB_NAME } from '@/common/static'
 
-const routes: Array<RouteRecordRaw> = [
+createRouteSCM()
+
+const routes: RouteRecordRaw[] = [
   {
-    path: "/",
-    name: "home",
-    component: HomeView,
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/Error/404.vue'),
+    meta: {
+      title: WEB_NAME + '-404not found'
+    }
   },
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    path: '/',
+    component: () => import('@/views/Home/Index.vue'),
+    meta: {
+      title: WEB_NAME,
+      dom: '#home'
+    }
   },
-];
+  ...RouteList
+]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes,
-});
+  routes
+})
 
-export default router;
+router.beforeEach((to, from, next) => {
+  getRouteSCMInstance().addCache(from.path, from.meta)
+
+  if (to.name !== 'Setting' && !getServerIp()) {
+    ElNotification({
+      type: 'error',
+      title: '配置',
+      message: '请先配置服务器地址'
+    })
+    next({ name: 'Setting' })
+  }
+  next()
+})
+router.afterEach((to) => {
+  getRouteSCMInstance().setScroll(to.path)
+  document.title = String(to.meta.title) || WEB_NAME
+})
+
+export default router

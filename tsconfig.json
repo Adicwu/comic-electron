@@ -12,13 +12,29 @@
     "useDefineForClassFields": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "resolveJsonModule": true,
+    "importHelpers": true,
+    "allowJs": true,
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "element-plus/global"
     ],
     "paths": {
       "@/*": [
         "src/*"
-      ]
+      ],
+      "styles/*": [
+        "src/assets/css/*"
+      ],
+      "static/*": [
+        "src/assets/*"
+      ],
+      "@apis/*": [
+        "src/api/*"
+      ],
+      "@comps*": [
+        "src/components/*"
+      ],
     },
     "lib": [
       "esnext",
