@@ -1,6 +1,6 @@
 <template>
   <div class="app-top__bar">
-    <Icon class="control-i" name="delete2" />
+    <Icon class="control-i" name="delete2" @click="hide" />
     <Icon class="control-i" name="exit-fullscreen-4-3" />
     <Icon class="control-i" name="delete2" @click="close" />
   </div>
@@ -8,15 +8,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-// const { ipcRenderer } = require('electron')
+import { useIpc } from '@/hooks/ipc'
 
 export default defineComponent({
   name: 'AppTopBar',
   setup() {
-    const close = () => {
-      // console.log(ipcRenderer)
-    }
-    return { close }
+    return { ...useIpc() }
   }
 })
 </script>
@@ -39,6 +36,7 @@ export default defineComponent({
     padding: 6px;
     z-index: 1;
     margin-left: 8px;
+    -webkit-app-region: no-drag;
     &::after {
       .mask(-1,var(--box-bg-color));
       border-radius: 6px;

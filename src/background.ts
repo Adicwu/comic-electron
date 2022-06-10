@@ -1,16 +1,38 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import { WEB_NAME } from './common/static'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
+let indexWindow: BrowserWindow | null
+let mainWindow: BrowserWindow | null
+let tray: Tray | null
+
+const hideWindow = () => indexWindow && indexWindow.hide()
+const closeWindow = () => indexWindow && indexWindow.close()
+const showWindow = () => indexWindow && indexWindow.show()
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
-async function createWindow() {
+function createTray() {
+  tray = new Tray('public/android-chrome-192x192.png')
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '退出',
+      role: 'quit'
+    }
+  ])
+  // 鼠标左键
+  tray.on('click', showWindow)
+  tray.setToolTip(WEB_NAME)
+  tray.setContextMenu(contextMenu)
+}
+async function createIndexWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 1600,
@@ -20,9 +42,11 @@ async function createWindow() {
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env
-        .ELECTRON_NODE_INTEGRATION as unknown as boolean,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+      // nodeIntegration: process.env
+      //   .ELECTRON_NODE_INTEGRATION as unknown as boolean,
+      // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: true,
+      contextIsolation: false
     }
   })
 
@@ -35,7 +59,53 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+
+  return win
 }
+// todo 布局修改 窗口独立
+async function createMainWindow(id: ComicId) {
+  const path =
+    process.env.NODE_ENV === 'development'
+      ? `http://localhost:8080/comicmain/${id}`
+      : `file://${__dirname}/comicmain/${id}`
+
+  mainWindow = new BrowserWindow({
+    width: 1600,
+    height: 900,
+    resizable: false,
+    frame: false,
+    webPreferences: {
+      // Use pluginOptions.nodeIntegration, leave this alone
+      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
+      // nodeIntegration: process.env
+      //   .ELECTRON_NODE_INTEGRATION as unknown as boolean,
+      // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  })
+
+  // const size = screen.getPrimaryDisplay().workAreaSize
+  // const { y = 0 } = tray ? tray.getBounds() : null
+  // const { height, width } = mainWindow.getBounds()
+  // const yPosition = process.platform === 'darwin' ? y : y - height
+  // mainWindow.setBounds({
+  //   x: size.width - width,
+  //   y: yPosition,
+  //   height,
+  //   width
+  // })
+
+  if (!process.env.IS_TEST) mainWindow.webContents.openDevTools()
+  mainWindow.setAlwaysOnTop(true)
+  mainWindow.loadURL(path)
+
+  mainWindow.show()
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+}
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
@@ -48,7 +118,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  if (BrowserWindow.getAllWindows().length === 0) createIndexWindow()
 })
 
 // This method will be called when Electron has finished
@@ -63,7 +133,14 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e)
     }
   }
-  createWindow()
+  createTray()
+  indexWindow = await createIndexWindow()
+})
+
+ipcMain.on('indexWindow:hide', hideWindow)
+ipcMain.on('indexWindow:close', closeWindow)
+ipcMain.on('mainWindow:open', (_, id: ComicId) => {
+  createMainWindow(id)
 })
 
 // Exit cleanly on request from parent process in development mode.
