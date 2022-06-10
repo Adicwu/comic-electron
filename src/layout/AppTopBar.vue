@@ -38,13 +38,13 @@ export default defineComponent({
     margin-left: 8px;
     -webkit-app-region: no-drag;
     &::after {
-      .mask(-1,var(--box-bg-color));
+      .mask(-1,#333);
       border-radius: 6px;
       opacity: 0;
       transition: all 0.25s;
     }
     &:hover::after {
-      opacity: 0.6;
+      opacity: 0.1;
     }
   }
 }
