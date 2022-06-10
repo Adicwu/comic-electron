@@ -5,6 +5,8 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import { WEB_NAME } from './common/static'
 
+const path = require('path')
+const iconPath = path.join(__static, 'android-chrome-192x192.png')
 const isDevelopment = process.env.NODE_ENV !== 'production'
 let indexWindow: BrowserWindow | null
 let mainWindow: BrowserWindow | null
@@ -20,7 +22,7 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 function createTray() {
-  tray = new Tray('public/android-chrome-192x192.png')
+  const tray = new Tray(iconPath)
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '退出',
@@ -31,6 +33,7 @@ function createTray() {
   tray.on('click', showWindow)
   tray.setToolTip(WEB_NAME)
   tray.setContextMenu(contextMenu)
+  return tray
 }
 async function createIndexWindow() {
   // Create the browser window.
@@ -39,6 +42,7 @@ async function createIndexWindow() {
     height: 900,
     resizable: false,
     frame: false,
+    icon: iconPath,
     webPreferences: {
       // nodeIntegration: process.env
       //   .ELECTRON_NODE_INTEGRATION as unknown as boolean,
@@ -131,7 +135,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e)
     }
   }
-  createTray()
+  tray = createTray()
   indexWindow = await createIndexWindow()
 })
 
