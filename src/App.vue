@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, provide, ref } from 'vue'
+import { defineComponent, onMounted, provide, ref } from 'vue'
 import '@/assets/icon/iconfont.css'
 import '@/assets/icon/iconfont.js'
 
@@ -31,6 +31,8 @@ import AppTopBar from '@/layout/AppTopBar.vue'
 
 import { useSystemConfigStore } from './stores/systemConfig.store'
 import { WEB_NAME } from './common/static'
+import { useIpc } from './hooks/ipc'
+import { wait } from 'adicw-utils'
 
 function provideModule() {
   const isDev = process.env.NODE_ENV === 'development'
@@ -55,8 +57,13 @@ export default defineComponent({
     AppTopBar
   },
   setup() {
+    const { closeLoading } = useIpc()
     const systemConfigStore = useSystemConfigStore()
     systemConfigStore.getServerIp()
+    onMounted(async () => {
+      await wait(2000)
+      closeLoading()
+    })
     return {
       WEB_NAME,
       ...asideModule(),

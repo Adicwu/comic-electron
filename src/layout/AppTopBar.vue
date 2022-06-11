@@ -1,7 +1,7 @@
 <template>
   <div class="app-top__bar">
-    <Icon class="control-i" name="delete2" @click="hide" />
-    <Icon class="control-i" name="exit-fullscreen-4-3" />
+    <Icon class="control-i" name="2zuixiaohua-1" @click="hide" />
+    <Icon class="control-i" name="fullscreen-4-3" />
     <Icon class="control-i" name="delete2" @click="close" />
   </div>
 </template>
@@ -28,6 +28,7 @@ export default defineComponent({
   align-items: center;
   padding: 16px;
   box-sizing: border-box;
+
   .control-i {
     position: relative;
     font-size: 30px;
@@ -37,6 +38,10 @@ export default defineComponent({
     z-index: 1;
     margin-left: 8px;
     -webkit-app-region: no-drag;
+    &:nth-child(2) {
+      cursor: no-drop;
+    }
+
     &::after {
       .mask(-1,#333);
       border-radius: 6px;

@@ -1,8 +1,16 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
+import {
+  app,
+  protocol,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  Tray,
+  BrowserView
+} from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+// import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import { WEB_NAME } from './common/static'
 
 const path = require('path')
@@ -36,12 +44,13 @@ function createTray() {
   return tray
 }
 async function createIndexWindow() {
-  // Create the browser window.
-  const win = new BrowserWindow({
+  const windowConfig = {
     width: 1600,
     height: 900,
     resizable: false,
     frame: false,
+    show: false,
+    transparent: true,
     icon: iconPath,
     webPreferences: {
       // nodeIntegration: process.env
@@ -50,17 +59,38 @@ async function createIndexWindow() {
       nodeIntegration: true,
       contextIsolation: false
     }
+  }
+  const win = new BrowserWindow(windowConfig)
+  const mask = new BrowserView()
+  win.setBrowserView(mask)
+  mask.setBounds({
+    x: 0,
+    y: 0,
+    width: windowConfig.width,
+    height: windowConfig.height
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
-    await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
+    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
+    mask.webContents.loadURL(
+      process.env.WEBPACK_DEV_SERVER_URL + '/loading.html'
+    )
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
-    // Load the index.html when not in development
+    mask.webContents.loadURL('app://./loading.html')
     win.loadURL('app://./index.html')
   }
+
+  // 显示窗口
+  mask.webContents.on('dom-ready', () => {
+    console.log('dom-ready', new Date())
+    win.show()
+  })
+
+  ipcMain.on('indexWindowLoading:close', () => {
+    win.removeBrowserView(mask)
+  })
 
   return win
 }
@@ -127,14 +157,14 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installExtension(VUEJS3_DEVTOOLS)
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e)
-    }
-  }
+  // if (isDevelopment && !process.env.IS_TEST) {
+  //   // Install Vue Devtools
+  //   try {
+  //     await installExtension(VUEJS3_DEVTOOLS)
+  //   } catch (e) {
+  //     console.error('Vue Devtools failed to install:', e)
+  //   }
+  // }
   tray = createTray()
   indexWindow = await createIndexWindow()
 })

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Document</title>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+
+			#loading {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+				height: 100vh;
+				background: #fff;
+				user-select: none;
+			}
+
+			b {
+				position: relative;
+				font-size: 90px;
+				z-index: 2;
+				color: rgb(104, 198, 189);
+			}
+
+			b::before {
+				content: "ANIME SITE";
+				opacity: .2;
+				background: -webkit-linear-gradient(90deg, transparent, #333);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				white-space: nowrap;
+				position: absolute;
+				left: 50%;
+				transform: translateX(-50%);
+				bottom: 0;
+				font-size: 108px;
+				z-index: 1;
+				font-weight: 800;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="loading">
+			<b>MasaMi</b>
+		</div>
+	</body>
+</html>

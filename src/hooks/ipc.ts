@@ -5,7 +5,8 @@ export function useIpc() {
   return {
     close: () => ipcRenderer.send('indexWindow:close'),
     hide: () => ipcRenderer.send('indexWindow:hide'),
-    openMain: (id: ComicId) => ipcRenderer.send('mainWindow:open', id)
+    openMain: (id: ComicId) => ipcRenderer.send('mainWindow:open', id),
+    closeLoading: () => ipcRenderer.send('indexWindowLoading:close')
   }
 }
 

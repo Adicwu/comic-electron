@@ -1,5 +1,8 @@
 <template>
   <div class="app-tab__bar">
+    <div class="avatar">
+      <BaseImg src="https://api.adicw.cn/uploads/UserAvatar/default.jpg" />
+    </div>
     <div v-click-outside="() => (historyVisible = false)" class="history">
       <Icon
         class="tool"
@@ -48,9 +51,6 @@
         </div>
       </transition>
     </div>
-    <div class="avatar">
-      <BaseImg src="https://api.adicw.cn/uploads/UserAvatar/default.jpg" />
-    </div>
   </div>
 </template>
 
@@ -97,11 +97,14 @@ export default defineComponent({
   display: flex;
   align-items: center;
   z-index: 8;
+  -webkit-app-region: no-drag;
+
   .avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     overflow: hidden;
+    margin-right: 14px;
     img {
       width: 100%;
       height: 100%;
@@ -115,7 +118,6 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     font-size: 16px;
-    margin-right: 14px;
     cursor: pointer;
     color: var(--font-color);
     &::after {
@@ -132,7 +134,7 @@ export default defineComponent({
     user-select: none;
     &-content {
       position: absolute;
-      right: -100%;
+      left: -100%;
       top: 100%;
       width: 340px;
       margin-top: 10px;
